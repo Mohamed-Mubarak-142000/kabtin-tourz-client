@@ -5,7 +5,7 @@ import Image from "next/image";
 import { gsap, registerGsapPlugins, prefersReducedMotion } from "@/lib/gsap";
 import { RevealOnScroll } from "@/components/common/RevealOnScroll";
 import { SectionHeading } from "@/components/common/SectionHeading";
-import { TripsRow } from "@/components/trips/TripsRow";
+import { TripCard } from "@/components/trips/TripCard";
 import { WhatsAppCta } from "@/components/common/WhatsAppCta";
 import type { Trip } from "@/types";
 
@@ -63,15 +63,19 @@ export function HajjUmrahSpotlight({ trips, whatsappNumber }: HajjUmrahSpotlight
           description="برامج حج وعمرة متكاملة، بإشراف مرشدين متخصصين، وسكن فاخر قريب من الحرمين الشريفين."
         />
 
-        <RevealOnScroll className="mt-12">
-          {trips.length > 0 ? (
-            <TripsRow trips={trips} whatsappNumber={whatsappNumber} />
-          ) : (
+        {trips.length > 0 ? (
+          <RevealOnScroll fourWay stagger={0.12} className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {trips.map((trip) => (
+              <TripCard key={trip._id} trip={trip} whatsappNumber={whatsappNumber} fluid bookingActions />
+            ))}
+          </RevealOnScroll>
+        ) : (
+          <RevealOnScroll className="mt-12">
             <p className="text-center text-white/60">
               برامج الحج والعمرة الجديدة قريبًا - تواصل معنا لحجز مكانك مبكرًا.
             </p>
-          )}
-        </RevealOnScroll>
+          </RevealOnScroll>
+        )}
 
         <div className="mt-10 flex justify-center">
           <WhatsAppCta

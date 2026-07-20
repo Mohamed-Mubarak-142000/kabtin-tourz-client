@@ -11,6 +11,7 @@ interface RevealOnScrollProps {
   delay?: number;
   stagger?: number;
   as?: "div" | "section";
+  fourWay?: boolean;
 }
 
 export function RevealOnScroll({
@@ -20,6 +21,7 @@ export function RevealOnScroll({
   delay = 0,
   stagger = 0.08,
   as = "div",
+  fourWay = false,
 }: RevealOnScrollProps) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -33,11 +35,23 @@ export function RevealOnScroll({
     const targets = el.children.length > 0 ? Array.from(el.children) : [el];
 
     const ctx = gsap.context(() => {
+      const directions = [
+        { x: 90, y: 0 },
+        { x: -90, y: 0 },
+        { x: 0, y: 70 },
+        { x: 0, y: -70 },
+      ];
+
       gsap.fromTo(
         targets,
-        { opacity: 0, y },
+        {
+          opacity: 0,
+          x: (index) => fourWay ? directions[index % directions.length].x : 0,
+          y: (index) => fourWay ? directions[index % directions.length].y : y,
+        },
         {
           opacity: 1,
+          x: 0,
           y: 0,
           duration: 0.8,
           ease: "power3.out",
@@ -53,7 +67,7 @@ export function RevealOnScroll({
     }, el);
 
     return () => ctx.revert();
-  }, [y, delay, stagger]);
+  }, [y, delay, stagger, fourWay]);
 
   const Comp = as;
 

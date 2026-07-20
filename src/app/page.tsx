@@ -24,8 +24,9 @@ async function safe<T>(promise: Promise<T>, fallback: T): Promise<T> {
 }
 
 export default async function HomePage() {
-  const [trips, branches, testimonials, faqs, settings] = await Promise.all([
-    safe<Trip[]>(getTrips(), []),
+  const [religiousTrips, tourismTrips, branches, testimonials, faqs, settings] = await Promise.all([
+    safe<Trip[]>(getTrips({ tripType: "religious" }), []),
+    safe<Trip[]>(getTrips({ tripType: "tourism" }), []),
     safe<Branch[]>(getBranches(), []),
     safe<Testimonial[]>(getTestimonials(), []),
     safe<Faq[]>(getFaqs(), []),
@@ -34,9 +35,7 @@ export default async function HomePage() {
 
   const whatsappNumber = settings?.whatsappNumbers?.[0] ?? FALLBACK_WHATSAPP;
   const phones = settings?.phones ?? CONTACT_NUMBERS;
-
-  const hajjUmrahTrips = trips.filter((trip) => trip.tripType === "religious");
-  const tourismTrips = trips.filter((trip) => trip.tripType === "tourism");
+  const trips = [...religiousTrips, ...tourismTrips];
 
   return (
     <>
@@ -60,11 +59,11 @@ export default async function HomePage() {
         }
       />
       <ServicesGrid whatsappNumber={whatsappNumber} />
-      <HajjUmrahSpotlight trips={hajjUmrahTrips} whatsappNumber={whatsappNumber} />
+      <HajjUmrahSpotlight trips={religiousTrips} whatsappNumber={whatsappNumber} />
       <GallerySection />
-      <FeaturedTrips trips={tourismTrips} whatsappNumber={whatsappNumber} />
+      <FeaturedTrips trips={tourismTrips} />
       <WhyChooseUs />
-      <BranchesSection branches={branches} />
+      <BranchesSection />
       <TestimonialsSection testimonials={testimonials} />
       <FaqSection faqs={faqs} />
       <ContactSection branches={branches} phones={phones} whatsappNumber={whatsappNumber} trips={trips} />

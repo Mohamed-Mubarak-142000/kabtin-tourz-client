@@ -1,4 +1,4 @@
-import { CheckCircle2, CreditCard, Headphones, MapPin, ShieldCheck } from "lucide-react";
+import { CheckCircle2, CreditCard, Headphones, MapPin, PhoneCall, ShieldCheck } from "lucide-react";
 import { RevealOnScroll } from "@/components/common/RevealOnScroll";
 import { LeadForm } from "@/components/forms/LeadForm";
 import { WhatsAppCta } from "@/components/common/WhatsAppCta";
@@ -46,11 +46,30 @@ export function ContactSection({ branches = [], phones = [], whatsappNumber, tri
                   </div>
                 ))}
               </div>
-              <div className="mt-9 rounded-2xl border border-white/10 bg-white/5 p-4">
-                <p className="flex items-center gap-2 text-sm font-bold"><MapPin className="size-4" />{SITE_ADDRESS}</p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <WhatsAppCta number={whatsappNumber} className="px-3 py-2 text-xs">واتساب</WhatsAppCta>
-                  {phones.slice(0, 1).map((phone) => <PhoneCta key={phone} number={phone} className="border-white/20 px-3 py-2 text-xs text-white" />)}
+              <div className="mt-9 overflow-hidden rounded-2xl border border-white/10 bg-white/5">
+                <div className="border-b border-white/10 p-4">
+                  <p className="text-[11px] font-bold text-white/45">مقر الشركة</p>
+                  <p className="mt-2 flex items-start gap-2 text-sm font-bold leading-6"><MapPin className="mt-0.5 size-4 shrink-0 text-brand-orange-300" />{SITE_ADDRESS}</p>
+                </div>
+
+                <div className="p-4">
+                  <p className="mb-3 flex items-center gap-2 text-[11px] font-bold text-white/45"><PhoneCall className="size-3.5" />اتصل بنا مباشرة</p>
+                  <div className="grid gap-2">
+                    {phones.map((phone) => (
+                      <PhoneCta
+                        key={phone}
+                        number={phone}
+                        className="h-11 w-full justify-center rounded-xl border-white/10 bg-white/5 px-3 py-2 text-sm text-white hover:border-white/20 hover:bg-white/10"
+                      />
+                    ))}
+                  </div>
+
+                  <WhatsAppCta
+                    number={whatsappNumber}
+                    className="mt-3 h-11 w-full justify-center rounded-xl px-3 py-2 text-sm shadow-lg shadow-green-950/20 hover:scale-100 hover:bg-[#20bd5a]"
+                  >
+                    تواصل عبر واتساب
+                  </WhatsAppCta>
                 </div>
               </div>
               <div className="mt-6 flex items-center gap-2 text-xs text-white/50"><CheckCircle2 className="size-4 text-green-400" />لن يتم خصم أي مبلغ تلقائيًا</div>

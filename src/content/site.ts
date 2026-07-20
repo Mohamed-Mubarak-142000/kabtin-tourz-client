@@ -2,7 +2,7 @@ import type { TripCategory } from "@/types";
 
 export const SITE_NAME = "كابتن تورز";
 export const SITE_NAME_EN = "Captain Tours";
-export const SITE_ADDRESS = "جنزور، المنوفية";
+export const SITE_ADDRESS = "جنزور، بركة السبع، المنوفية";
 export const SITE_LOCALE = "ar_EG";
 
 export const FALLBACK_WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_FALLBACK ?? "01069569024";

@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { CheckCircle2, Copy, CreditCard, Loader2, Send, Upload, Users } from "lucide-react";
+import { CheckCircle2, Clock3, Copy, CreditCard, Loader2, MessageSquareText, Send, Star, Upload, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,8 +12,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { leadFormSchema, type LeadFormInput, type LeadFormValues } from "@/schemas/lead";
-import { postLead, uploadPaymentProof } from "@/lib/endpoints";
+import { postBookingFeedback, postLead, uploadPaymentProof } from "@/lib/endpoints";
 import type { Branch, Trip } from "@/types";
+import { SELECT_TRIP_EVENT } from "@/components/trips/TourismTripActions";
 
 const paymentLabels = { cash: "الدفع نقدًا في الفرع", bank_transfer: "تحويل بنكي", instapay: "InstaPay", vodafone_cash: "Vodafone Cash" } as const;
 const paymentAccounts = {
@@ -30,18 +31,51 @@ const fields = [
   ["identityNumber", "رقم الهوية أو جواز السفر", "الرقم الرسمي"],
 ] as const;
 
+const emptyLeadValues = {
+  name: "",
+  whatsapp: "",
+  phone: "",
+  email: "",
+  nationality: "",
+  identityNumber: "",
+  tripId: "",
+  branch: "",
+  guests: 1,
+  roomType: "",
+  paymentMethod: undefined,
+  message: "",
+};
+
 export function LeadForm({ branches = [], trips = [] }: { branches?: Branch[]; trips?: Trip[] }) {
   const [submitting, setSubmitting] = useState(false);
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
   const [proofFile, setProofFile] = useState<File | null>(null);
-  const { register, control, handleSubmit, reset, watch, formState: { errors } } = useForm<LeadFormInput, unknown, LeadFormValues>({
+  const [bookingId, setBookingId] = useState<string | null>(null);
+  const [successDialogOpen, setSuccessDialogOpen] = useState(false);
+  const [feedback, setFeedback] = useState("");
+  const [rating, setRating] = useState(5);
+  const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
+  const [feedbackSent, setFeedbackSent] = useState(false);
+  const { register, control, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<LeadFormInput, unknown, LeadFormValues>({
     resolver: zodResolver(leadFormSchema),
-    defaultValues: { guests: 1 },
+    defaultValues: emptyLeadValues,
   });
   const tripId = watch("tripId");
   const guests = Number(watch("guests") || 1);
   const selectedTrip = trips.find((trip) => trip._id === tripId);
   const paymentMethod = watch("paymentMethod");
+
+  useEffect(() => {
+    function selectTrip(event: Event) {
+      const tripId = (event as CustomEvent<{ tripId?: string }>).detail?.tripId;
+      if (tripId && trips.some((trip) => trip._id === tripId)) {
+        setValue("tripId", tripId, { shouldDirty: true, shouldValidate: true });
+      }
+    }
+
+    window.addEventListener(SELECT_TRIP_EVENT, selectTrip);
+    return () => window.removeEventListener(SELECT_TRIP_EVENT, selectTrip);
+  }, [setValue, trips]);
 
   async function onSubmit(values: LeadFormValues) {
     setSubmitting(true);
@@ -55,13 +89,36 @@ export function LeadForm({ branches = [], trips = [] }: { branches?: Branch[]; t
         }
         paymentProof = await uploadPaymentProof(proofFile);
       }
-      await postLead({ ...values, paymentProof });
-      toast.success("تم إرسال طلب الحجز بنجاح، ويمكن لفريقنا متابعته من لوحة التحكم");
-      reset({ guests: 1 });
+      const booking = await postLead({ ...values, paymentProof });
+      setBookingId(booking._id);
+      setFeedback("");
+      setRating(5);
+      setFeedbackSent(false);
+      setSuccessDialogOpen(true);
+      reset(emptyLeadValues);
       setProofFile(null);
+      setPaymentDialogOpen(false);
     } catch {
       toast.error("تعذر إرسال الطلب، حاول مرة أخرى");
     } finally { setSubmitting(false); }
+  }
+
+  async function submitFeedback() {
+    if (!bookingId || feedback.trim().length < 3) {
+      toast.error("اكتب رأيك أو أي صعوبات واجهتك أولًا");
+      return;
+    }
+
+    setFeedbackSubmitting(true);
+    try {
+      await postBookingFeedback({ leadId: bookingId, text: feedback.trim(), rating });
+      setFeedbackSent(true);
+      toast.success("شكرًا لك، تم إرسال تقييمك بنجاح");
+    } catch {
+      toast.error("تعذر إرسال التقييم الآن، حاول مرة أخرى");
+    } finally {
+      setFeedbackSubmitting(false);
+    }
   }
 
   return (
@@ -109,7 +166,110 @@ export function LeadForm({ branches = [], trips = [] }: { branches?: Branch[]; t
       </Button>
 
       <PaymentDialog open={paymentDialogOpen} onOpenChange={setPaymentDialogOpen} method={paymentMethod} file={proofFile} onFileChange={setProofFile} />
+      <BookingSuccessDialog
+        open={successDialogOpen}
+        onOpenChange={setSuccessDialogOpen}
+        feedback={feedback}
+        onFeedbackChange={setFeedback}
+        rating={rating}
+        onRatingChange={setRating}
+        submitting={feedbackSubmitting}
+        sent={feedbackSent}
+        onSubmit={submitFeedback}
+      />
     </form>
+  );
+}
+
+function BookingSuccessDialog({
+  open,
+  onOpenChange,
+  feedback,
+  onFeedbackChange,
+  rating,
+  onRatingChange,
+  submitting,
+  sent,
+  onSubmit,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  feedback: string;
+  onFeedbackChange: (value: string) => void;
+  rating: number;
+  onRatingChange: (value: number) => void;
+  submitting: boolean;
+  sent: boolean;
+  onSubmit: () => void;
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="overflow-hidden p-0 sm:max-w-lg" dir="rtl">
+        <div className="bg-linear-to-l from-emerald-600 to-emerald-500 px-6 py-7 text-center text-white">
+          <span className="mx-auto flex size-16 items-center justify-center rounded-full bg-white/15 ring-8 ring-white/8">
+            <CheckCircle2 className="size-9" />
+          </span>
+          <DialogHeader className="mt-4 gap-2">
+            <DialogTitle className="font-display text-2xl font-black text-white">تم استلام طلب حجزك بنجاح</DialogTitle>
+            <DialogDescription className="text-sm leading-6 text-white/80">
+              شكرًا لاختيارك كابتن تورز. طلبك أصبح لدى فريقنا وسيتم مراجعته بعناية.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mx-auto mt-4 flex w-fit items-center gap-2 rounded-full bg-white/12 px-4 py-2 text-sm font-bold">
+            <Clock3 className="size-4" /> سيتواصل معك أحد ممثلي الشركة خلال 24 ساعة
+          </div>
+        </div>
+
+        <div className="p-6">
+          {sent ? (
+            <div className="py-5 text-center">
+              <CheckCircle2 className="mx-auto size-10 text-emerald-600" />
+              <h3 className="mt-3 font-display text-lg font-bold text-brand-navy-900">شكرًا لمشاركة رأيك</h3>
+              <p className="mt-2 text-sm text-slate-500">تقييمك وصل لفريقنا وسيساعدنا على تقديم تجربة أفضل.</p>
+              <Button type="button" onClick={() => onOpenChange(false)} className="mt-5 w-full">تم</Button>
+            </div>
+          ) : (
+            <>
+              <div className="flex items-center gap-3">
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand-orange-50 text-brand-orange-600">
+                  <MessageSquareText className="size-5" />
+                </span>
+                <div>
+                  <h3 className="font-bold text-brand-navy-900">رأيك يهمنا</h3>
+                  <p className="text-xs leading-5 text-slate-500">شاركنا رأيك في الخدمة أو أي صعوبات واجهتك أثناء الحجز.</p>
+                </div>
+              </div>
+
+              <div className="my-4 flex items-center justify-center gap-1" dir="ltr">
+                {Array.from({ length: 5 }).map((_, index) => {
+                  const value = index + 1;
+                  return (
+                    <button key={value} type="button" onClick={() => onRatingChange(value)} className="rounded-md p-1 transition-transform hover:scale-110" aria-label={`${value} نجوم`}>
+                      <Star className={`size-7 ${value <= rating ? "fill-brand-orange-500 text-brand-orange-500" : "text-slate-200"}`} />
+                    </button>
+                  );
+                })}
+              </div>
+
+              <Textarea
+                value={feedback}
+                onChange={(event) => onFeedbackChange(event.target.value)}
+                maxLength={1000}
+                rows={4}
+                placeholder="اكتب رأيك في الخدمة أو أخبرنا بأي صعوبة واجهتك..."
+                className="resize-none rounded-xl"
+              />
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>لاحقًا</Button>
+                <Button type="button" onClick={onSubmit} disabled={submitting || feedback.trim().length < 3} className="bg-brand-orange-500 font-bold hover:bg-brand-orange-600">
+                  {submitting ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />} إرسال رأيي
+                </Button>
+              </div>
+            </>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 

@@ -47,7 +47,7 @@ export function ServicesGrid({ whatsappNumber }: ServicesGridProps) {
     setActiveCategory(category);
     setLoading(true);
     try {
-      const data = await getTrips(category);
+      const data = await getTrips({ category });
       setTrips(data);
     } catch {
       setTrips([]);

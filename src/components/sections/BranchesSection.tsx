@@ -1,63 +1,52 @@
-import { MapPin, Star } from "lucide-react";
+import { MapPin, Navigation } from "lucide-react";
 import { RevealOnScroll } from "@/components/common/RevealOnScroll";
 import { SectionHeading } from "@/components/common/SectionHeading";
-import { PhoneCta } from "@/components/common/PhoneCta";
-import type { Branch } from "@/types";
 
-interface BranchesSectionProps {
-  branches: Branch[];
-}
+const LOCATION = "جنزور، بركة السبع، المنوفية";
+const MAP_QUERY = encodeURIComponent(LOCATION);
 
-export function BranchesSection({ branches }: BranchesSectionProps) {
-  if (branches.length === 0) return null;
-
+export function BranchesSection() {
   return (
-    <section id="branches" className="bg-brand-navy-50/40 scroll-mt-20 py-20">
+    <section id="branches" className="scroll-mt-20 bg-brand-navy-50/40 py-20">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <SectionHeading
-          eyebrow="فروعنا"
-          title="تجدنا أينما كنت"
-          description="زورونا في أقرب فرع أو تواصلوا معنا مباشرة."
+          eyebrow="موقعنا"
+          title="زورونا في جنزور"
+          description="يسعدنا استقبالكم في جنزور، مركز بركة السبع، محافظة المنوفية."
         />
 
-        <RevealOnScroll className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {branches.map((branch) => (
-            <div
-              key={branch._id}
-              className="flex flex-col gap-3 rounded-2xl border border-black/5 bg-white p-6 shadow-sm shadow-black/5"
-            >
-              <div className="flex items-start justify-between gap-2">
-                <h3 className="font-display text-brand-navy-800 text-lg font-bold">
-                  {branch.name}
-                </h3>
-                {branch.googleRating && (
-                  <span className="text-brand-orange-600 flex items-center gap-1 text-sm font-semibold">
-                    <Star className="fill-brand-orange-500 text-brand-orange-500 size-4" />
-                    {branch.googleRating}
-                  </span>
-                )}
-              </div>
-
-              <div className="text-muted-foreground flex items-start gap-2 text-sm">
-                <MapPin className="mt-0.5 size-4 shrink-0" />
-                <span>{branch.address}</span>
-              </div>
-
-              <div className="mt-auto flex items-center gap-3 pt-2">
-                <PhoneCta number={branch.phone} className="flex-1 justify-center" />
-                {branch.mapLink && (
-                  <a
-                    href={branch.mapLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-brand-navy-600 hover:text-brand-orange-500 flex items-center gap-1.5 text-sm font-semibold"
-                  >
-                    عرض الموقع
-                  </a>
-                )}
-              </div>
+        <RevealOnScroll className="mt-12 overflow-hidden rounded-[2rem] bg-white shadow-xl shadow-brand-navy-900/10">
+          <div className="grid lg:grid-cols-[320px_minmax(0,1fr)]">
+            <div className="flex flex-col justify-center bg-brand-navy-900 p-7 text-white sm:p-9">
+              <span className="flex size-12 items-center justify-center rounded-2xl bg-brand-orange-500">
+                <MapPin className="size-6" />
+              </span>
+              <p className="mt-6 text-sm font-bold text-brand-orange-300">كابتن تورز</p>
+              <h3 className="mt-2 font-display text-2xl font-black">{LOCATION}</h3>
+              <p className="mt-3 text-sm leading-7 text-white/60">
+                افتح الخريطة للحصول على أفضل طريق من موقعك الحالي إلى مقرنا.
+              </p>
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${MAP_QUERY}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-7 inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-white font-bold text-brand-navy-800 transition-colors hover:bg-brand-orange-50"
+              >
+                <Navigation className="size-4" /> عرض الاتجاهات
+              </a>
             </div>
-          ))}
+
+            <div className="relative min-h-80 bg-slate-100 sm:min-h-105">
+              <iframe
+                title={`خريطة ${LOCATION}`}
+                src={`https://www.google.com/maps?q=${MAP_QUERY}&output=embed`}
+                className="absolute inset-0 h-full w-full border-0"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                allowFullScreen
+              />
+            </div>
+          </div>
         </RevealOnScroll>
       </div>
     </section>

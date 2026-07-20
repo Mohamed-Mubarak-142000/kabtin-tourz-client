@@ -2,22 +2,25 @@ import Image from "next/image";
 import { Clock, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { WhatsAppCta } from "@/components/common/WhatsAppCta";
+import { TourismTripActions } from "@/components/trips/TourismTripActions";
 import { CATEGORY_LABELS } from "@/content/site";
 import type { Trip } from "@/types";
 
 interface TripCardProps {
   trip: Trip;
   whatsappNumber: string;
+  fluid?: boolean;
+  bookingActions?: boolean;
 }
 
-export function TripCard({ trip, whatsappNumber }: TripCardProps) {
+export function TripCard({ trip, whatsappNumber, fluid = false, bookingActions = false }: TripCardProps) {
   const image = trip.images?.[0];
 
   return (
-    <div className="flex w-72 shrink-0 flex-col overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm shadow-black/5 transition-transform hover:-translate-y-1 hover:shadow-lg sm:w-80">
+    <div className={`group flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm shadow-black/5 transition-shadow hover:shadow-lg ${fluid ? "w-full" : "w-72 shrink-0 sm:w-80"} ${bookingActions ? "h-full" : "hover:-translate-y-1"}`}>
       <div className="relative h-44 w-full overflow-hidden">
         {image ? (
-          <Image src={image} alt={trip.title} fill className="object-cover" sizes="320px" />
+          <Image src={image} alt={trip.title} fill className="object-cover transition-transform duration-700 ease-out group-hover:scale-110" sizes="320px" />
         ) : (
           <div className="bg-brand-navy-50 text-brand-navy-300 flex h-full w-full items-center justify-center">
             كابتن تورز
@@ -44,17 +47,25 @@ export function TripCard({ trip, whatsappNumber }: TripCardProps) {
           )}
         </div>
 
-        <div className="mt-auto flex items-center justify-between gap-3 pt-2">
-          <span className="font-display text-brand-navy-700 text-lg font-bold">
+        <div className="mt-auto pt-2">
+          <span className="font-display block text-brand-navy-700 text-lg font-bold">
             {trip.price.toLocaleString("ar-EG")} {trip.currency}
           </span>
-          <WhatsAppCta
-            number={whatsappNumber}
-            text={`أهلاً، أرغب في الاستفسار عن رحلة: ${trip.title}`}
-            className="px-4 py-2 text-xs"
-          >
-            استفسار
-          </WhatsAppCta>
+          {bookingActions ? (
+            <div className="mt-4">
+              <TourismTripActions trip={trip} />
+            </div>
+          ) : (
+            <div className="mt-3 flex justify-end">
+              <WhatsAppCta
+                number={whatsappNumber}
+                text={`أهلاً، أرغب في الاستفسار عن رحلة: ${trip.title}`}
+                className="px-4 py-2 text-xs"
+              >
+                استفسار
+              </WhatsAppCta>
+            </div>
+          )}
         </div>
       </div>
     </div>
