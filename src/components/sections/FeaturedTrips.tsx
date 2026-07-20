@@ -5,6 +5,7 @@ import { CalendarDays, MapPin, Palmtree } from "lucide-react";
 import type { Trip } from "@/types";
 import { CATEGORY_LABELS } from "@/content/site";
 import { TourismTripActions } from "@/components/trips/TourismTripActions";
+import { formatCurrency } from "@/lib/currency";
 
 interface FeaturedTripsProps {
   trips: Trip[];
@@ -45,7 +46,7 @@ export function FeaturedTrips({ trips }: FeaturedTripsProps) {
                     </span>
                     <div className="absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-black/55 to-transparent" />
                     <p className="absolute bottom-4 start-4 text-sm font-bold text-white">
-                      تبدأ من {trip.price.toLocaleString("ar-EG")} {trip.currency}
+                      تبدأ من {formatCurrency(trip.price, trip.currency)}
                     </p>
                   </div>
 

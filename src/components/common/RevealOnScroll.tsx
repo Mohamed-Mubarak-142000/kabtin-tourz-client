@@ -42,28 +42,47 @@ export function RevealOnScroll({
         { x: 0, y: -70 },
       ];
 
-      gsap.fromTo(
-        targets,
-        {
-          opacity: 0,
-          x: (index) => fourWay ? directions[index % directions.length].x : 0,
-          y: (index) => fourWay ? directions[index % directions.length].y : y,
-        },
-        {
-          opacity: 1,
-          x: 0,
-          y: 0,
-          duration: 0.8,
-          ease: "power3.out",
-          delay,
-          stagger,
-          scrollTrigger: {
-            trigger: el,
-            start: "top 85%",
-            once: true,
-          },
-        }
-      );
+      if (fourWay) {
+        targets.forEach((target, index) => {
+          const direction = directions[index % directions.length];
+          gsap.fromTo(
+            target,
+            { opacity: 0, x: direction.x, y: direction.y },
+            {
+              opacity: 1,
+              x: 0,
+              y: 0,
+              duration: 0.8,
+              ease: "power3.out",
+              delay,
+              scrollTrigger: {
+                trigger: target,
+                start: "top 88%",
+                once: true,
+              },
+            }
+          );
+        });
+      } else {
+        gsap.fromTo(
+          targets,
+          { opacity: 0, x: 0, y },
+          {
+            opacity: 1,
+            x: 0,
+            y: 0,
+            duration: 0.8,
+            ease: "power3.out",
+            delay,
+            stagger,
+            scrollTrigger: {
+              trigger: el,
+              start: "top 85%",
+              once: true,
+            },
+          }
+        );
+      }
     }, el);
 
     return () => ctx.revert();

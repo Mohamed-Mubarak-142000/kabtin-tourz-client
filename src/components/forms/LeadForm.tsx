@@ -15,6 +15,7 @@ import { leadFormSchema, type LeadFormInput, type LeadFormValues } from "@/schem
 import { postBookingFeedback, postLead, uploadPaymentProof } from "@/lib/endpoints";
 import type { Branch, Trip } from "@/types";
 import { SELECT_TRIP_EVENT } from "@/components/trips/TourismTripActions";
+import { formatCurrency } from "@/lib/currency";
 
 const paymentLabels = { cash: "الدفع نقدًا في الفرع", bank_transfer: "تحويل بنكي", instapay: "InstaPay", vodafone_cash: "Vodafone Cash" } as const;
 const paymentAccounts = {
@@ -148,9 +149,9 @@ export function LeadForm({ branches = [], trips = [] }: { branches?: Branch[]; t
 
       {selectedTrip && (
         <div className="from-brand-navy-900 to-brand-navy-700 grid overflow-hidden rounded-2xl bg-gradient-to-l text-white shadow-xl shadow-brand-navy-900/15 sm:grid-cols-3 [&>div]:p-5 [&>div:not(:last-child)]:border-white/10 sm:[&>div:not(:last-child)]:border-e">
-          <div><p className="text-xs text-white/55">سعر الفرد</p><p className="mt-1 text-xl font-bold">{selectedTrip.price.toLocaleString("ar-EG")} {selectedTrip.currency}</p></div>
+          <div><p className="text-xs text-white/55">سعر الفرد</p><p className="mt-1 text-xl font-bold">{formatCurrency(selectedTrip.price, selectedTrip.currency)}</p></div>
           <div><p className="text-xs text-white/55">عدد الأفراد</p><p className="mt-1 flex items-center gap-2 text-xl font-bold"><Users className="text-brand-orange-300 size-5" />{guests}</p></div>
-          <div className="bg-brand-orange-500"><p className="text-xs text-white/75">الإجمالي المتوقع</p><p className="mt-1 text-2xl font-black">{(selectedTrip.price * guests).toLocaleString("ar-EG")} {selectedTrip.currency}</p></div>
+          <div className="bg-brand-orange-500"><p className="text-xs text-white/75">الإجمالي المتوقع</p><p className="mt-1 text-2xl font-black">{formatCurrency(selectedTrip.price * guests, selectedTrip.currency)}</p></div>
         </div>
       )}
 

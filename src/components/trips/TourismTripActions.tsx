@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { CATEGORY_LABELS } from "@/content/site";
 import type { Trip } from "@/types";
+import { formatCurrency } from "@/lib/currency";
 
 export const SELECT_TRIP_EVENT = "captain-tours:select-trip";
 
@@ -48,8 +49,8 @@ export function TourismTripActions({ trip }: { trip: Trip }) {
       </div>
 
       <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
-        <DialogContent className="w-[calc(100%-1rem)] overflow-hidden rounded-3xl p-0 sm:max-w-6xl" dir="rtl">
-          <div className="grid lg:grid-cols-[minmax(0,1.25fr)_minmax(360px,.75fr)]">
+        <DialogContent className="max-h-[94dvh] w-[calc(100%-1rem)] overflow-hidden rounded-3xl p-0 sm:max-w-6xl lg:max-h-none" dir="rtl">
+          <div className="grid max-h-[94dvh] overflow-y-auto overscroll-contain lg:max-h-none lg:grid-cols-[minmax(0,1.25fr)_minmax(360px,.75fr)] lg:overflow-visible">
             <div className="flex min-w-0 flex-col p-4 sm:p-6 lg:p-8">
               <DialogHeader className="pe-8 text-start">
                 <div className="mb-1 flex flex-wrap items-center gap-2">
@@ -72,7 +73,7 @@ export function TourismTripActions({ trip }: { trip: Trip }) {
                 {trip.duration && <Detail icon={CalendarDays} label="المدة" value={trip.duration} />}
                 {trip.location?.address && <Detail icon={MapPin} label="الوجهة" value={trip.location.address} />}
                 {trip.hotelInfo && <Detail icon={Hotel} label="الإقامة" value={trip.hotelInfo} />}
-                <Detail icon={TicketCheck} label="السعر للفرد" value={`${trip.price.toLocaleString("ar-EG")} ${trip.currency}`} featured />
+                <Detail icon={TicketCheck} label="السعر للفرد" value={formatCurrency(trip.price, trip.currency)} featured />
               </div>
 
               {trip.includes.length > 0 && (
@@ -110,7 +111,7 @@ export function TourismTripActions({ trip }: { trip: Trip }) {
               <div className="absolute inset-0 bg-linear-to-t from-brand-navy-950/75 via-transparent to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-5 text-white sm:p-7">
                 <p className="text-xs text-white/70">السعر يبدأ من</p>
-                <p className="mt-1 font-display text-3xl font-black">{trip.price.toLocaleString("ar-EG")} <span className="text-base font-bold">{trip.currency}</span></p>
+                <p className="mt-1 font-display text-3xl font-black">{formatCurrency(trip.price, trip.currency)}</p>
               </div>
             </div>
           </div>

@@ -5,6 +5,7 @@ import { WhatsAppCta } from "@/components/common/WhatsAppCta";
 import { TourismTripActions } from "@/components/trips/TourismTripActions";
 import { CATEGORY_LABELS } from "@/content/site";
 import type { Trip } from "@/types";
+import { formatCurrency } from "@/lib/currency";
 
 interface TripCardProps {
   trip: Trip;
@@ -49,7 +50,7 @@ export function TripCard({ trip, whatsappNumber, fluid = false, bookingActions =
 
         <div className="mt-auto pt-2">
           <span className="font-display block text-brand-navy-700 text-lg font-bold">
-            {trip.price.toLocaleString("ar-EG")} {trip.currency}
+            {formatCurrency(trip.price, trip.currency)}
           </span>
           {bookingActions ? (
             <div className="mt-4">
