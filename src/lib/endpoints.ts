@@ -1,4 +1,5 @@
 import { apiFetch } from "@/lib/api";
+import { API_URL } from "@/lib/api";
 import type {
   Branch,
   Faq,
@@ -43,4 +44,13 @@ export function postLead(payload: LeadPayload) {
     method: "POST",
     body: JSON.stringify(payload),
   });
+}
+
+export async function uploadPaymentProof(file: File) {
+  const formData = new FormData();
+  formData.append("images", file);
+  const response = await fetch(`${API_URL}/leads/payment-proof`, { method: "POST", body: formData });
+  const body = await response.json();
+  if (!response.ok || !body?.success || !body.data?.urls?.[0]) throw new Error(body?.error ?? "Upload failed");
+  return body.data.urls[0] as string;
 }

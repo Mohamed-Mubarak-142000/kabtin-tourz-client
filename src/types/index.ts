@@ -1,10 +1,12 @@
 export type TripCategory = "hajj" | "umrah" | "flights" | "domestic" | "international" | "visa";
+export type TripType = "religious" | "tourism";
 
 export interface Trip {
   _id: string;
   title: string;
   slug: string;
   category: TripCategory;
+  tripType: TripType;
   price: number;
   currency: string;
   duration?: string;
@@ -17,7 +19,6 @@ export interface Trip {
     address?: string;
   };
   description?: string;
-  featured: boolean;
   published: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -78,10 +79,16 @@ export interface SiteSettings {
 export interface LeadPayload {
   name: string;
   whatsapp: string;
-  serviceCategory?: TripCategory;
+  phone?: string;
+  email?: string;
+  nationality: string;
+  identityNumber: string;
+  tripId: string;
   branch?: string;
-  guests?: number;
-  roomType?: string;
+  guests: number;
+  roomType: string;
+  paymentMethod: "cash" | "bank_transfer" | "instapay" | "vodafone_cash";
+  paymentProof?: string;
   message?: string;
 }
 

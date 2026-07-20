@@ -35,10 +35,8 @@ export default async function HomePage() {
   const whatsappNumber = settings?.whatsappNumbers?.[0] ?? FALLBACK_WHATSAPP;
   const phones = settings?.phones ?? CONTACT_NUMBERS;
 
-  const hajjUmrahTrips = trips.filter(
-    (trip) => (trip.category === "hajj" || trip.category === "umrah") && trip.featured
-  );
-  const featuredTrips = trips.filter((trip) => trip.featured);
+  const hajjUmrahTrips = trips.filter((trip) => trip.tripType === "religious");
+  const tourismTrips = trips.filter((trip) => trip.tripType === "tourism");
 
   return (
     <>
@@ -64,12 +62,12 @@ export default async function HomePage() {
       <ServicesGrid whatsappNumber={whatsappNumber} />
       <HajjUmrahSpotlight trips={hajjUmrahTrips} whatsappNumber={whatsappNumber} />
       <GallerySection />
-      <FeaturedTrips trips={featuredTrips} whatsappNumber={whatsappNumber} />
+      <FeaturedTrips trips={tourismTrips} whatsappNumber={whatsappNumber} />
       <WhyChooseUs />
       <BranchesSection branches={branches} />
       <TestimonialsSection testimonials={testimonials} />
       <FaqSection faqs={faqs} />
-      <ContactSection branches={branches} phones={phones} whatsappNumber={whatsappNumber} />
+      <ContactSection branches={branches} phones={phones} whatsappNumber={whatsappNumber} trips={trips} />
     </>
   );
 }
