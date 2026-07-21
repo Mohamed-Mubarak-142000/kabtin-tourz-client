@@ -29,7 +29,7 @@ export function SiteFooter({ settings }: SiteFooterProps) {
 
   return (
     <footer className="bg-brand-navy-900 text-white">
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-4">
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-5">
         <div className="flex flex-col gap-4 md:col-span-2">
           <div className="flex items-center gap-2">
             <Image
@@ -96,6 +96,22 @@ export function SiteFooter({ settings }: SiteFooterProps) {
               </WhatsAppCta>
             )}
           </div>
+        </div>
+
+        <div className="flex flex-col items-center gap-3 text-center md:items-start md:text-right">
+          <h3 className="font-display text-base font-semibold">امسح الكود</h3>
+          <div className="rounded-xl bg-white p-2">
+            <Image
+              src="/qr-code.png"
+              alt="امسح الكود لزيارة موقع كابتن تورز"
+              width={110}
+              height={110}
+              className="size-28"
+            />
+          </div>
+          <p className="max-w-36 text-xs text-white/60">
+            وادخل على موقعنا من موبايلك مباشرة
+          </p>
         </div>
       </div>
 
